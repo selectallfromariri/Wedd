@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 const router = useRouter()
+const route  = useRoute()
+const redirectTo = computed(() => (route.query.redirect as string) || '/')
 const state = reactive({
   name: undefined,  
   email: undefined,
@@ -42,7 +44,7 @@ async function handleSubmit(){
     }) as { token: string; data: any }
     localStorage.setItem('token', response.token)
     localStorage.setItem('user', JSON.stringify(response.data))
-    await router.push('/')
+    await router.push(redirectTo.value)
   } catch (err: any) {
     error.value = err?.data?.errors;
   } finally {

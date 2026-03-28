@@ -315,12 +315,6 @@ const timelineItems = [
       </div>
     </div>
 
-    <!-- Recent Activity -->
-    <section class="activity-section">
-      <div class="activity-header">
-        <h2 class="activity-title">Recent Activity</h2>
-        <button class="view-all-btn">View All Notifications</button>
-      </div>
 
       <div class="activity-list">
         <div
@@ -338,7 +332,6 @@ const timelineItems = [
           <span class="activity-time">{{ activity.time }}</span>
         </div>
       </div>
-    </section>
 
     <tentative :items="timelineItems" />
   </div>
