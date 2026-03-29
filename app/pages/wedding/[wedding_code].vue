@@ -128,7 +128,9 @@ onMounted(async () => {
     <!-- Top nav -->
     <header class="top-nav">
       <div class="nav-brand">
-        <div class="nav-logo">W</div>
+        <div class="nav-logo">
+          <img src="~/assets/images/{C37CA420-6487-43AE-910C-8FFFE00DE730}.png" alt="Logo" class="logo-img" />
+        </div>
         <span class="nav-title">WeddingAR</span>
       </div>
       <div class="nav-actions">
@@ -279,9 +281,10 @@ onMounted(async () => {
 .nav-brand { display: flex; align-items: center; gap: 10px; }
 .nav-logo {
   width: 34px; height: 34px; border-radius: 9px;
-  background: #c4a96b; color: #fff; font-weight: 800; font-size: 14px;
-  display: grid; place-items: center;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
+.logo-img { width: 100%; height: 100%; object-fit: contain; }
 .nav-title { font-weight: 700; font-size: 0.95rem; color: #2c2416; }
 .nav-actions { display: flex; gap: 0.6rem; }
 .btn-nav-login {

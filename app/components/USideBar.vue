@@ -1,7 +1,9 @@
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <div class="logo">W</div>
+      <div class="logo">
+        <img src="~/assets/images/{C37CA420-6487-43AE-910C-8FFFE00DE730}.png" alt="Logo" class="logo-img" />
+      </div>
       <div>
         <p class="title">Wedding Management</p>
       </div>
@@ -62,11 +64,16 @@
   height: 40px;
   width: 40px;
   border-radius: 10px;
-  display: grid;
-  place-items: center;
-  background-color: #c4a96b;
-  color: #fff;
-  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  overflow: hidden;
+}
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .title {
   margin: 0;

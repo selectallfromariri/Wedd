@@ -192,7 +192,9 @@ onMounted(loadAll)
     <!-- Top nav -->
     <header class="top-nav">
       <div class="nav-brand">
-        <div class="nav-logo">W</div>
+        <div class="nav-logo">
+          <img src="~/assets/images/{C37CA420-6487-43AE-910C-8FFFE00DE730}.png" alt="Logo" class="logo-img" />
+        </div>
         <span class="nav-title">WeddingAR</span>
       </div>
       <NuxtLink :to="`/wedding/code/${code}`" class="btn-nav-back">
@@ -244,7 +246,7 @@ onMounted(loadAll)
 
         <!-- 2. RSVP Status Badge -->
         <div v-if="rsvp" class="status-badge" :class="rsvp.attendance === 'attending' ? 'status-badge--attending' : 'status-badge--notattending'">
-          <span class="status-emoji">{{ rsvp.attendance === 'attending' ? '🎉' : '💌' }}</span>
+          <span class="status-emoji">{{ rsvp.attendance === 'attending' ? '' : '' }}</span>
           <div>
             <p class="status-label">Your RSVP</p>
             <p class="status-value">{{ rsvp.attendance === 'attending' ? 'You are attending!' : 'You\'re not attending' }}</p>
@@ -366,9 +368,10 @@ onMounted(loadAll)
 .nav-brand { display: flex; align-items: center; gap: 10px; }
 .nav-logo {
   width: 32px; height: 32px; border-radius: 8px;
-  background: #c4a96b; color: #fff; font-weight: 800; font-size: 13px;
-  display: grid; place-items: center;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
 }
+.logo-img { width: 100%; height: 100%; object-fit: contain; }
 .nav-title { font-weight: 700; font-size: 0.92rem; color: #2c2416; }
 .btn-nav-back {
   display: inline-flex; align-items: center; gap: 5px;
