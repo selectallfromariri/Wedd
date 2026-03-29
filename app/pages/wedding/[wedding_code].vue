@@ -57,7 +57,7 @@ function countdown(d: string) {
 async function fetchWedding() {
   weddingLoad.value = true
   try {
-    const res = await $fetch(`/wedding/${code}`, {
+    const res = await $fetch(`/wedding/code/${code}`, {
       baseURL: useRuntimeConfig().public.apiBase,
       headers: { Accept: 'application/json' },
     }) as any
@@ -114,7 +114,7 @@ async function submitRsvp(attendance: 'attending' | 'not_attending', note = '') 
 }
 
 function goLogin() {
-  router.push(`/?redirect=/wedding/${code}`)
+  router.push(`/?redirect=/wedding/code/${code}`)
 }
 
 onMounted(async () => {

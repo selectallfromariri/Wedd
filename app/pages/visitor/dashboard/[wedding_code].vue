@@ -32,6 +32,13 @@ interface BankQr {
   is_published: boolean
 }
 
+interface PhotoItem {
+  id: number
+  image_url: string
+  visitor_id: number
+  created_at?: string
+}
+
 const route  = useRoute()
 const router = useRouter()
 const code   = route.params.wedding_code as string
@@ -42,6 +49,7 @@ const wedding    = ref<Wedding | null>(null)
 const rsvp       = ref<Rsvp | null>(null)
 const tentatives = ref<TentativeItem[]>([])
 const bankQr     = ref<BankQr | null>(null)
+const photos     = ref<PhotoItem[]>([])
 const loading    = ref(true)
 const error      = ref('')
 
@@ -81,21 +89,51 @@ async function loadAll() {
 
   const token = getToken()
   if (!token) {
-    router.replace(`/auth?redirect=/visitor/dashboard/${code}`)
+    router.replace(`/?redirect=/visitor/dashboard/${code}`)
     return
   }
 
   try {
-    // One call gets wedding + tentatives + bankQr
-    const res = await $fetch(`/photo/store/${code}`, {
+    // 1. Fetch wedding details (+ tentatives + bank_qr)
+    const res = await $fetch(`/wedding/code/${code}`, {
+      method: 'GET',
       baseURL: useRuntimeConfig().public.apiBase,
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+      },
     }) as any
 
     const data = res?.data ?? res
-    wedding.value    = data
-    tentatives.value = Array.isArray(data?.tentatives) ? data.tentatives : []
-    bankQr.value     = data?.bank_qr?.is_published ? data.bank_qr : null
+    wedding.value       = data
+    const allTentatives = Array.isArray(data?.tentatives) ? data.tentatives : []
+    tentatives.value    = allTentatives.filter((t: any) => t.is_published == 1 || t.is_published === true)
+    
+    bankQr.value        = data?.bank_qr?.is_published ? data.bank_qr : null
+
+    // 2. Fetch user's RSVP
+    try {
+      const rsvpRes = await $fetch(`/visitor/rsvp/${code}`, {
+        method: 'GET',
+        baseURL: useRuntimeConfig().public.apiBase,
+        headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+      }) as any
+      rsvp.value = rsvpRes?.data ?? null
+    } catch {
+      rsvp.value = null // RSVP not found or failed
+    }
+
+    // 3. Fetch Photos (The Photo Dump)
+    try {
+      const photoRes = await $fetch(`/photo/index/${code}`, {
+        method: 'GET',
+        baseURL: useRuntimeConfig().public.apiBase,
+        headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+      }) as any
+      // We assume data is an array; reverse to show newest first!
+      photos.value = Array.isArray(photoRes?.data) ? photoRes.data.reverse() : []
+    } catch {
+      photos.value = []
+    }
 
   } catch (e: any) {
     error.value = e?.data?.message || 'Could not load wedding details'
@@ -109,6 +147,8 @@ function onFileChange(e: Event) {
   if (f) photoFile.value = f
 }
 
+const previewUrl = computed(() => photoFile.value ? URL.createObjectURL(photoFile.value) : '')
+
 async function uploadPhoto() {
   if (!photoFile.value) return
   uploading.value = true
@@ -116,8 +156,8 @@ async function uploadPhoto() {
   uploadError.value   = ''
   try {
     const body = new FormData()
-    body.append('image', photoFile.value)
-    await $fetch(`/visitor/photos/${code}`, {
+    body.append('image_url', photoFile.value)  // must match backend validation rule
+    await $fetch(`/photo/store/${code}`, {
       baseURL: useRuntimeConfig().public.apiBase,
       method:  'POST',
       headers: { Authorization: `Bearer ${getToken()}` },
@@ -126,6 +166,16 @@ async function uploadPhoto() {
     uploadSuccess.value = 'Photo uploaded! 🎉'
     photoFile.value   = null
     if (fileInputRef.value) fileInputRef.value.value = ''
+    
+    // Refresh photos so the new one appears immediately
+    try {
+      const photoRes = await $fetch(`/photo/index/${code}`, {
+        method: 'GET',
+        baseURL: useRuntimeConfig().public.apiBase,
+        headers: { Accept: 'application/json', Authorization: `Bearer ${getToken()}` },
+      }) as any
+      photos.value = Array.isArray(photoRes?.data) ? photoRes.data.reverse() : []
+    } catch {}
   } catch (e: any) {
     uploadError.value = e?.data?.message || 'Upload failed'
   } finally {
@@ -145,7 +195,7 @@ onMounted(loadAll)
         <div class="nav-logo">W</div>
         <span class="nav-title">WeddingAR</span>
       </div>
-      <NuxtLink :to="`/wedding/${code}`" class="btn-nav-back">
+      <NuxtLink :to="`/wedding/code/${code}`" class="btn-nav-back">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Invitation
       </NuxtLink>
@@ -262,7 +312,7 @@ onMounted(loadAll)
           <div class="upload-area" @click="fileInputRef?.click()" @dragover.prevent @drop.prevent="e => { const f = e.dataTransfer?.files?.[0]; if(f) photoFile = f }">
             <input ref="fileInputRef" type="file" accept="image/*" class="upload-input" @change="onFileChange" />
             <div v-if="photoFile" class="upload-preview">
-              <img :src="URL.createObjectURL(photoFile)" alt="Preview" class="upload-preview-img" />
+              <img :src="previewUrl" alt="Preview" class="upload-preview-img" />
               <p class="upload-filename">{{ photoFile.name }}</p>
             </div>
             <div v-else class="upload-placeholder">
@@ -280,6 +330,22 @@ onMounted(loadAll)
             <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             {{ uploading ? 'Uploading…' : 'Upload Photo' }}
           </button>
+        </section>
+
+        <!-- 6. Photo Dump Gallery -->
+        <section v-if="photos.length" class="section-card">
+          <div class="section-header">
+            <p class="section-eyebrow">Gallery</p>
+            <h2 class="section-title">Photo Dump ✨</h2>
+            <p class="section-sub">Moments captured and shared by everyone.</p>
+          </div>
+          <div class="photo-grid">
+            <div v-for="p in photos" :key="p.id" class="photo-item">
+              <!-- Using useRuntimeConfig().public.apiBase or assuming the backend returns full URLs -->
+              <!-- If image_url is just a path, it might need to be prepended by your domain -->
+              <img :src="p.image_url" alt="Wedding Photo" loading="lazy" />
+            </div>
+          </div>
         </section>
 
       </div>
@@ -409,4 +475,26 @@ onMounted(loadAll)
 .btn-upload:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .spinner { width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+
+/* Photo Gallery */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 1rem;
+}
+@media (min-width: 600px) {
+  .photo-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.photo-item {
+  width: 100%; aspect-ratio: 4 / 5;
+  border-radius: 12px; overflow: hidden;
+  background: #f5f0e6;
+  border: 1px solid #efe5d4;
+}
+.photo-item img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.35s ease;
+}
+.photo-item:hover img { transform: scale(1.05); }
 </style>
