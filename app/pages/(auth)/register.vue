@@ -64,9 +64,9 @@ async function handleSubmit(){
 </div>
   
   <div class="flex justify-center items-center min-h-screen">
-    <UForm class="flex flex-col gap-4 p-6 rounded shadow-md" 
+    <UForm class="flex flex-col gap-4 p-6 rounded shadow-md text-black" 
       @submit.prevent="handleSubmit">
-      <div class="text-2xl font-bold mb-4">Register</div>
+      <div class="text-2xl font-bold mb-4 text-black">Register</div>
 
         <UFormField label="Name" name="Name">
         <UInput class="w-full" v-model="state.name" />
@@ -81,9 +81,15 @@ async function handleSubmit(){
       <URadioGroup v-model="value" :items="radio"></URadioGroup>
       <UButton type="submit" :loading="loading" class="flex items-center justify-center">Submit</UButton>
 
-<div class="text-white">Have an account ? 
+<div class="text-black">Have an account ? 
   <NuxtLink class="underline" to="/">Log In
   </NuxtLink ></div>
     </UForm>
   </div>
 </template>
+
+<style scoped>
+:deep(label) {
+  color: black !important;
+}
+</style>

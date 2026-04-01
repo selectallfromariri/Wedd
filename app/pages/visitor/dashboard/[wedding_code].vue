@@ -254,54 +254,56 @@ onMounted(loadAll)
           </div>
         </div>
 
-        <!-- 3. Tentative / Schedule -->
-        <section v-if="tentatives.length" class="section-card">
-          <div class="section-header">
-            <p class="section-eyebrow">Timeline</p>
-            <h2 class="section-title">Wedding Day Schedule</h2>
-          </div>
-          <ul class="timeline-list">
-            <li v-for="(item, i) in tentatives" :key="item.id" class="timeline-item">
-              <div class="tl-meta">
-                <div class="tl-dot" />
-                <div v-if="i < tentatives.length - 1" class="tl-line" />
-              </div>
-              <div class="tl-card">
-                <p class="tl-time">{{ item.time }}</p>
-                <p class="tl-title">{{ item.title }}</p>
-                <p v-if="item.note" class="tl-note">{{ item.note }}</p>
-              </div>
-            </li>
-          </ul>
-        </section>
+        <div class="grid-2-col">
+          <!-- 3. Tentative / Schedule -->
+          <section v-if="tentatives.length" class="section-card section-card--flex">
+            <div class="section-header">
+              <p class="section-eyebrow">Timeline</p>
+              <h2 class="section-title">Wedding Day Schedule</h2>
+            </div>
+            <ul class="timeline-list">
+              <li v-for="(item, i) in tentatives" :key="item.id" class="timeline-item">
+                <div class="tl-meta">
+                  <div class="tl-dot" />
+                  <div v-if="i < tentatives.length - 1" class="tl-line" />
+                </div>
+                <div class="tl-card">
+                  <p class="tl-time">{{ item.time }}</p>
+                  <p class="tl-title">{{ item.title }}</p>
+                  <p v-if="item.note" class="tl-note">{{ item.note }}</p>
+                </div>
+              </li>
+            </ul>
+          </section>
 
-        <!-- 4. Bank QR -->
-        <section v-if="bankQr" class="section-card">
-          <div class="section-header">
-            <p class="section-eyebrow">Gift</p>
-            <h2 class="section-title">Send a Gift 💝</h2>
-            <p class="section-sub">Transfer directly to the couple's account or scan the QR code.</p>
-          </div>
-          <div class="bank-details">
-            <div class="bank-info">
-              <div class="bank-row">
-                <span class="bank-label">Bank</span>
-                <span class="bank-value">{{ bankQr.bank_name }}</span>
+          <!-- 4. Bank QR -->
+          <section v-if="bankQr" class="section-card section-card--flex">
+            <div class="section-header">
+              <p class="section-eyebrow">Gift</p>
+              <h2 class="section-title">Send a Gift 💝</h2>
+              <p class="section-sub">Transfer directly to the couple's account or scan the QR code.</p>
+            </div>
+            <div class="bank-details">
+              <div class="bank-info">
+                <div class="bank-row">
+                  <span class="bank-label">Bank</span>
+                  <span class="bank-value">{{ bankQr.bank_name }}</span>
+                </div>
+                <div class="bank-row">
+                  <span class="bank-label">Account Name</span>
+                  <span class="bank-value">{{ bankQr.account_name }}</span>
+                </div>
+                <div class="bank-row">
+                  <span class="bank-label">Account No.</span>
+                  <span class="bank-value bank-value--mono">{{ bankQr.account_number }}</span>
+                </div>
               </div>
-              <div class="bank-row">
-                <span class="bank-label">Account Name</span>
-                <span class="bank-value">{{ bankQr.account_name }}</span>
-              </div>
-              <div class="bank-row">
-                <span class="bank-label">Account No.</span>
-                <span class="bank-value bank-value--mono">{{ bankQr.account_number }}</span>
+              <div v-if="bankQr.qr_image" class="qr-frame">
+                <img :src="bankQr.qr_image" alt="QR Code" class="qr-img" />
               </div>
             </div>
-            <div v-if="bankQr.qr_image" class="qr-frame">
-              <img :src="bankQr.qr_image" alt="QR Code" class="qr-img" />
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
         <!-- 5. Photo Upload -->
         <section class="section-card">
@@ -500,4 +502,21 @@ onMounted(loadAll)
   transition: transform 0.35s ease;
 }
 .photo-item:hover img { transform: scale(1.05); }
+
+/* Grid layout for timeline and gift */
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+@media (min-width: 768px) {
+  .grid-2-col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.section-card--flex {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 </style>

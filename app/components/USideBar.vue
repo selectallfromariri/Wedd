@@ -35,12 +35,40 @@
             Photo Dump
           </NuxtLink>
         </li>
+        <li>
+          <a href="#" @click.prevent="handleLogout" class="nav-link">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            Log Out
+          </a>
+        </li>
       </ul>
     </nav>
   </aside>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const handleLogout = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    if (token) {
+      await $fetch('/auth/logout', {
+        baseURL: useRuntimeConfig().public.apiBase,
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      })
+    }
+  } catch (err) {
+    console.error('Logout error:', err)
+  } finally {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    useRouter().push('/') // or '/' depending on where login is
+  }
+}
+</script>
 
 <style scoped>
 .sidebar {

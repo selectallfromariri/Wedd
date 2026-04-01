@@ -51,9 +51,9 @@ async function handleSubmit(){
   
   
   <div class="flex justify-center items-center min-h-screen">
-    <UForm class="flex flex-col gap-4 p-6 rounded shadow-md" 
+    <UForm class="flex flex-col gap-4 p-6 rounded shadow-md text-black" 
       @submit.prevent="handleSubmit">
-      <div class="text-2xl font-bold mb-4">Login</div>
+      <div class="text-2xl font-bold mb-4 text-black">Login</div>
       <UFormField label="Email" name="Email">
         <UInput class="w-full" v-model="state.email" />
       </UFormField>
@@ -63,9 +63,15 @@ async function handleSubmit(){
       </UFormField>
       <UButton type="submit" :loading="loading" class="flex items-center justify-center">Submit</UButton>
 
-<div class="text-white">dont have an account ? 
+<div class="text-black">dont have an account ? 
   <NuxtLink class="underline" to="/register">Register
   </NuxtLink ></div>
     </UForm>
   </div>
 </template>
+
+<style scoped>
+:deep(label) {
+  color: black !important;
+}
+</style>
